@@ -1,50 +1,60 @@
 package com.shahriar.newsapp.ui.home
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import android.view.View
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.shahriar.newsapp.R
-import com.shahriar.newsapp.RetrofitInstance
-import com.shahriar.newsapp.data.NewsResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 class PostNewsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+
     private lateinit var newsAdapter: NewsAdapter
+    private lateinit var viewModel: MainViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post_news)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
+        progressBar = findViewById(R.id.progressBar)
         newsAdapter = NewsAdapter(emptyList())
         recyclerView.adapter = newsAdapter
 
-        fetchNewsArticles()
-    }
+        handleLoading()
 
-    private fun fetchNewsArticles() {
-        RetrofitInstance.api.getNewsArticle().enqueue(object : Callback<NewsResponse> {
-            override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val articles = response.body()?.articles?.filterNotNull() ?: emptyList()
+        lifecycleScope.launch {
+            viewModel.postResponse.collect { response ->
+                if (response != null) {
+                    val articles = response.articles?.filterNotNull() ?: emptyList()
                     newsAdapter.updateArticles(articles)
-                } else {
-                    Toast.makeText(this@PostNewsActivity, "Failed to load news", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
 
-            override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
-                Log.e("PostNewsActivity", "Error: ${t.message}")
-                Toast.makeText(this@PostNewsActivity, "Error fetching news", Toast.LENGTH_SHORT).show()
-            }
-        })
     }
+
+    private fun handleLoading() {
+        lifecycleScope.launch {
+            viewModel.isLoading.collect { isLoading ->
+                if (isLoading) {
+                    progressBar.visibility = View.VISIBLE
+                } else {
+                    progressBar.visibility = View.GONE
+                }
+            }
+        }
+    }
+
 }

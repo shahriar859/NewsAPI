@@ -31,14 +31,18 @@ class NewsAdapter(
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         val article = articleList[position]
-        holder.articleTitle.text = article.title
-        holder.articleDescription.text = article.description
-        holder.articleAuthor.text = article.author ?: "Unknown"
-        holder.articleImage.load(article.urlToImage) {
-            crossfade(true)
-            placeholder(R.drawable.placeholder)
+
+        holder.apply {
+            articleTitle.text = article.title
+            articleDescription.text = article.description
+            articleAuthor.text = article.author ?: "Unknown"
+            articleImage.load(article.urlToImage) {
+                crossfade(true)
+                placeholder(R.drawable.placeholder)
+            }
+            publishedAt.text = article.publishedAt
         }
-        holder.publishedAt.text = article.publishedAt
+
     }
 
     override fun getItemCount(): Int {
