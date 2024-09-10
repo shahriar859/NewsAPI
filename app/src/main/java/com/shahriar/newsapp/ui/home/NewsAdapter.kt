@@ -1,6 +1,6 @@
 package com.shahriar.newsapp.ui.home
 
-import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.shahriar.newsapp.R
 import com.shahriar.newsapp.data.Article
+import com.shahriar.newsapp.data.NewsResponse
 
 class NewsAdapter(
-    private var articleList: List<Article>)
+    private var articleList: List<Article?>?
+)
     :RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
 
     class NewsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -30,28 +32,30 @@ class NewsAdapter(
     }
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
-        val article = articleList[position]
+        val article = articleList?.get(position)
+        Log.d("Adapter",article?.title.toString())
+
 
         holder.apply {
-            articleTitle.text = article.title
-            articleDescription.text = article.description
-            articleAuthor.text = article.author ?: "Unknown"
-            articleImage.load(article.urlToImage) {
+            articleTitle.text = article?.title
+            articleDescription.text = article?.description
+            articleAuthor.text = article?.author ?: "Unknown"
+            articleImage.load(article?.urlToImage) {
                 crossfade(true)
                 placeholder(R.drawable.placeholder)
             }
-            publishedAt.text = article.publishedAt
+            publishedAt.text = article?.publishedAt
         }
 
     }
 
     override fun getItemCount(): Int {
-        return articleList.size
+        return articleList?.size ?: 0
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateArticles(newArticles: List<Article>) {
-        articleList = newArticles
-        notifyDataSetChanged()
-    }
+//    @SuppressLint("NotifyDataSetChanged")
+//    fun updateArticles(newArticles: List<Article>) {
+//        articleList = newArticles
+//        notifyDataSetChanged()
+//    }
 }

@@ -1,5 +1,6 @@
 package com.shahriar.newsapp.ui.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shahriar.newsapp.api.ApiClient
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
 
     // Saving only NewsResponse instead of the Resource wrapper
-    val postResponse = MutableStateFlow<NewsResponse?>(null)
+    val newsResponse = MutableStateFlow<NewsResponse?>(null)
 
     // Separate variables to handle loading and error states
     val isLoading = MutableStateFlow(true)
@@ -39,7 +40,8 @@ class MainViewModel : ViewModel() {
 
                     is Resource.Success -> {
                         isLoading.value = false // Stop loading
-                        postResponse.value = resource.data // Set news data
+                        newsResponse.value = resource.data // Set news data
+//                        Log.d("Viewmodel",resource.data.articles?.size.toString())
                     }
 
                     is Resource.Error -> {

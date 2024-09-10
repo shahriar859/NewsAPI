@@ -3,6 +3,7 @@ package com.shahriar.newsapp.ui.home
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -15,8 +16,7 @@ class PostNewsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
-
-    private lateinit var newsAdapter: NewsAdapter
+    private lateinit var adapter: NewsAdapter
     private lateinit var viewModel: MainViewModel
 
 
@@ -29,16 +29,15 @@ class PostNewsActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         progressBar = findViewById(R.id.progressBar)
-        newsAdapter = NewsAdapter(emptyList())
-        recyclerView.adapter = newsAdapter
+
 
         handleLoading()
 
         lifecycleScope.launch {
-            viewModel.postResponse.collect { response ->
+            viewModel.newsResponse.collect { response ->
                 if (response != null) {
-                    val articles = response.articles?.filterNotNull() ?: emptyList()
-                    newsAdapter.updateArticles(articles)
+                    adapter = NewsAdapter(response.articles)
+                    recyclerView.adapter = adapter
                 }
             }
         }
